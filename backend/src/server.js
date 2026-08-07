@@ -1,10 +1,9 @@
-import express from "express";
 import { connectDB } from "./configs/database.config.js";
 import { env } from "./configs/env.config.js";
+
+import app from "./app.js";
+
 // Server Setup.
-
-const app = express();
-
 async function startServer() {
   try {
     await connectDB();

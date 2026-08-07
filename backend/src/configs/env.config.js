@@ -13,7 +13,9 @@ export const env = {
 };
 
 for (const [key, value] of Object.entries(env)) {
- throw new Error(
-  `Environment variable "${key}" is missing. Please check your .env file.`
-);
+  if (!value) {
+    throw new Error(
+      `Environment variable "${key}" is missing. Please check your .env file.`,
+    );
+  }
 }
