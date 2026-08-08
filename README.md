@@ -2,10 +2,24 @@
 
 DevCollab is a production-oriented full-stack developer collaboration platform being developed as part of the **Cognifyz Full Stack Development Internship**.
 
-The project is designed to simulate a real-world collaboration platform where developers and teams can manage workspaces, projects, tasks, and team members while following modern software engineering principles and production-ready architecture.
+The platform is designed to simulate a real-world developer collaboration environment where users and teams can manage **workspaces, projects, tasks, team members, and collaboration workflows** while following modern software engineering and production-ready development practices.
 
-Throughout this internship, the application will be progressively enhanced to complete all **8 Full Stack Development tasks** by implementing frontend development, backend APIs, database integration, authentication, authorization, external API integration, middleware, caching, background processing, and other advanced full-stack concepts.
+Throughout the internship, DevCollab will progressively implement all **8 Full Stack Development tasks** provided by Cognifyz. The required concepts will be integrated into a single cohesive application rather than being treated as isolated demo projects.
 
-The primary goal of this repository is not only to fulfill the internship requirements but also to build a portfolio-quality project that demonstrates scalable architecture, clean code practices, and real-world engineering approaches.
+### Key Engineering Areas
 
-> 🚧 **Project Status:** Planning & Initial Development Phase
+- Frontend development
+- RESTful backend APIs
+- Authentication & authorization
+- Database integration
+- Middleware architecture
+- External API integration
+- Caching
+- Background processing
+- Scalable and modular application architecture
+
+The project follows a **module-based backend architecture** with a clear separation between routes, controllers, services, validation, middleware, configuration, and database concerns.
+
+The primary goal is not only to complete the internship requirements but also to build a **portfolio-quality, production-oriented application** that demonstrates practical full-stack engineering, clean architecture, maintainability, and real-world problem-solving.
+
+> 🚧 **Project Status:** Active Development — Backend foundation and authentication module setup in progress.
