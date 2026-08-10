@@ -16,7 +16,7 @@ export const registerSchema = z
         .max(30, "Username cannot exceed 30 characters.")
         .regex(
           /^[a-zA-Z0-9_]+$/,
-          "Username can only contain letters, numbers, and underscores."
+          "Username can only contain letters, numbers, and underscores.",
         ),
 
       email: z
@@ -27,21 +27,13 @@ export const registerSchema = z
 
       password: z
         .string()
-        .min(8, "Password must be at least 8 characters.")
+        .min(2, "Password must be at least 2 characters.")
         .max(100, "Password cannot exceed 100 characters."),
 
       confirmPassword: z.string(),
 
-      terms: z.literal("on", {
-        errorMap: () => ({
-          message: "You must accept the Terms & Privacy Policy.",
-        }),
-      }),
+      terms: z.literal("on"),
     }),
-
-    params: z.object({}),
-
-    query: z.object({}),
   })
   .refine((data) => data.body.password === data.body.confirmPassword, {
     path: ["body", "confirmPassword"],
@@ -58,11 +50,7 @@ export const loginSchema = z.object({
 
     password: z
       .string()
-      .min(8, "Password must be at least 8 characters.")
+      .min(2, "Password must be at least 2 characters.")
       .max(100, "Password cannot exceed 100 characters."),
   }),
-
-  params: z.object({}),
-
-  query: z.object({}),
 });

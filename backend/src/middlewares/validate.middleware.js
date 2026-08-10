@@ -17,7 +17,7 @@ export const validate = (schema) => {
       });
     }
 
-    req.validated = result.data;
+    req.validatedData = result.data;
 
     next();
   };
