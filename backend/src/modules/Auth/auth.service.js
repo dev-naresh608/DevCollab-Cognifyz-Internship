@@ -2,6 +2,7 @@ import { User } from "../../models/user.js";
 import bcrypt from "bcrypt";
 import { env } from "../../configs/env.config.js";
 import jwt from "jsonwebtoken";
+import { userRepository } from "../users/user.repository.js";
 
 const generateAccessToken = (userId) => {
   return jwt.sign(
@@ -28,35 +29,32 @@ const generateRefreshToken = (userId) => {
 };
 
 const handleRegisterSvc = async (payload) => {
-  const { fullName, username, email, password } = payload;
+  const { firstName, lastName, username, email, password } = payload;
 
-  const isExist = await User.exists({
-    $or: [{ email }, { username }],
-  });
+  const passwordHash = await bcrypt.hash(password, 12);
 
-  if (isExist) {
-    return {
-      success: false,
-      message: "Email or username already exists.",
-    };
-  }
-
-  const hashedPassword = await bcrypt.hash(password, 12);
-
-  const user = await User.create({
-    fullName,
+  const user = await userRepository.createUser({
+    firstName,
+    lastName,
     username,
     email,
-    password: hashedPassword,
+    passwordHash,
   });
 
   return {
     success: true,
+    user: {
+      id: user.id,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      username: user.username,
+      email: user.email,
+    },
   };
 };
 
 const handleLoginSvc = async ({ email, password }) => {
-  const user = await User.findOne({ email }).select("+password");
+  const user = await userRepository.findUserByEmail(email);
 
   if (!user) {
     return {
@@ -65,10 +63,14 @@ const handleLoginSvc = async ({ email, password }) => {
     };
   }
 
-  const isPasswordMatch = await bcrypt.compare(
-    password,
-    user.password
-  );
+  if (!user.is_active) {
+    return {
+      success: false,
+      message: "Account is deactivated or suspended.",
+    };
+  }
+
+  const isPasswordMatch = await bcrypt.compare(password, user.password_hash);
 
   if (!isPasswordMatch) {
     return {
@@ -77,14 +79,15 @@ const handleLoginSvc = async ({ email, password }) => {
     };
   }
 
-  const accessToken = generateAccessToken(user._id);
-  const refreshToken = generateRefreshToken(user._id);
+  const accessToken = generateAccessToken(user.id);
+  const refreshToken = generateRefreshToken(user.id);
 
   return {
     success: true,
     user: {
-      id: user._id,
-      fullName: user.fullName,
+      id: user.id,
+      first_name: user.first_name,
+      last_name: user.last_name,
       username: user.username,
       email: user.email,
     },
@@ -92,7 +95,63 @@ const handleLoginSvc = async ({ email, password }) => {
     refreshToken,
   };
 };
+
+const getMeSvc = async (userId) => {
+  const user = await User.findOne({ _id: userId });
+  if (!user) {
+    return {
+      success: false,
+      message: "User not found",
+    };
+  }
+
+  if (!user.isActive) {
+    return {
+      success: false,
+      message: "Account is deactivated or suspended.",
+    };
+  }
+
+  return {
+    success: true,
+    user: {
+      username: user.username,
+      fullName: user.fullName,
+      email: user.email,
+    },
+  };
+};
+
+const refreshSvc = async (userId) => {
+  const user = await User.findById(userId);
+
+  if (!user) {
+    return {
+      success: false,
+      message: "User not found.",
+    };
+  }
+
+  if (!user.isActive) {
+    return {
+      success: false,
+      message: "Account is deactivated or suspended.",
+    };
+  }
+
+  const accessToken = generateAccessToken(user._id);
+  const refreshToken = generateRefreshToken(user._id);
+
+  return {
+    success: true,
+    message: "token refreshed successfully",
+    accessToken,
+    refreshToken,
+  };
+};
 export const authService = {
   handleRegisterSvc,
   handleLoginSvc,
+  getMeSvc,
+  refreshSvc,
 };

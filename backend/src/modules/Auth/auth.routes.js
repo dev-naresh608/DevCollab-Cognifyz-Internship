@@ -6,6 +6,8 @@ import { validate } from "../../middlewares/validate.middleware.js";
 
 import { registerSchema, loginSchema } from "./auth.validation.js";
 
+import { authMiddleware } from "./auth.middleware.js";
+
 const authRouter = Router();
 
 authRouter
@@ -18,6 +20,10 @@ authRouter
   .get(authController.showLoginPage)
   .post(validate(loginSchema), authController.login);
 
-authRouter.route("/logout").post(authController.logout);
+authRouter.get("/get-me", authMiddleware.authenticateAccessToken, authController.getMe);
+
+authRouter.post("/refresh", authMiddleware.authenticateRefreshToken, authController.refresh);
+
+authRouter.post("/logout", authController.logout);
 
 export default authRouter;

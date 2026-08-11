@@ -1,8 +1,10 @@
 import express from "express";
 import morgan from "morgan";
+import cookieParser from "cookie-parser";
 import path from "path";
 import { fileURLToPath } from "url";
 import { env } from "./configs/env.config.js";
+import cors from "cors";
 
 import authRouter from "./modules/auth/auth.routes.js";
 
@@ -20,6 +22,15 @@ if (env.NODE_ENV === "development") {
 // Body Parsing Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(cookieParser());
+
+app.use(
+  cors({
+    origin: env.CLIENT_URL,
+    credentials: true,
+  }),
+);
 
 //EJS
 app.set("view engine", "ejs");
