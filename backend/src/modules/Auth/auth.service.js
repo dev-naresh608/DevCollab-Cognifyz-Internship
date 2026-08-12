@@ -97,7 +97,8 @@ const handleLoginSvc = async ({ email, password }) => {
 };
 
 const getMeSvc = async (userId) => {
-  const user = await User.findOne({ _id: userId });
+  const user = await userRepository.findUserById(userId);
+
   if (!user) {
     return {
       success: false,
@@ -105,7 +106,7 @@ const getMeSvc = async (userId) => {
     };
   }
 
-  if (!user.isActive) {
+  if (!user.is_active) {
     return {
       success: false,
       message: "Account is deactivated or suspended.",
@@ -115,15 +116,17 @@ const getMeSvc = async (userId) => {
   return {
     success: true,
     user: {
+      id: user.id,
+      first_name: user.first_name,
+      last_name: user.last_name,
       username: user.username,
-      fullName: user.fullName,
       email: user.email,
     },
   };
 };
 
 const refreshSvc = async (userId) => {
-  const user = await User.findById(userId);
+  const user = await userRepository.findUserById(userId);
 
   if (!user) {
     return {
@@ -132,15 +135,15 @@ const refreshSvc = async (userId) => {
     };
   }
 
-  if (!user.isActive) {
+  if (!user.is_active) {
     return {
       success: false,
       message: "Account is deactivated or suspended.",
     };
   }
 
-  const accessToken = generateAccessToken(user._id);
-  const refreshToken = generateRefreshToken(user._id);
+  const accessToken = generateAccessToken(user.id);
+  const refreshToken = generateRefreshToken(user.id);
 
   return {
     success: true,

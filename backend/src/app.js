@@ -7,6 +7,8 @@ import { env } from "./configs/env.config.js";
 import cors from "cors";
 
 import authRouter from "./modules/auth/auth.routes.js";
+import userRouter from "./modules/users/user.routes.js";
+import organizationRouter from "./modules/organizations/organization.routes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -38,5 +40,7 @@ app.set("views", path.join(__dirname, "modules"));
 
 //Routes:
 app.use("/api/auth", authRouter);
+app.use("/api/users", userRouter);
+app.use("/api/organizations", organizationRouter);
 
 export default app;

@@ -27,7 +27,6 @@ const findUserByEmail = async (email) => {
     SELECT *
     FROM users
     WHERE email = $1
-    LIMIT 1
   `;
 
   const { rows } = await pool.query(query, [email]);
@@ -35,13 +34,19 @@ const findUserByEmail = async (email) => {
   return rows[0] || null;
 };
 
-const findUserById = async () => {};
+const findUserById = async (id) => {
+  const query = ` SELECT *
+    FROM users
+    WHERE id = $1
+    `;
 
-const findUserByUsername = async () => {};
+  const { rows } = await pool.query(query, [id]);
+
+  return rows[0] || null;
+};
 
 export const userRepository = {
   createUser,
   findUserByEmail,
   findUserById,
-  findUserByUsername,
 };

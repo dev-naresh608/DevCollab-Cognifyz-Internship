@@ -1,0 +1,4 @@
+ALTER TABLE workspace_members
+ADD COLUMN IF NOT EXISTS role_id UUID
+REFERENCES roles(id)
+ON DELETE RESTRICT;
