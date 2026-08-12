@@ -92,10 +92,50 @@ const deleteOrganizationById = async (req, res) => {
   }
 };
 
+const getInactiveOrganizations = async (req, res) => {
+  try {
+    const response =
+      await organizationServices.getInactiveOrganizationsSvc(
+        req.user.id,
+      );
+
+    return res.status(200).json(response);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch inactive organizations.",
+    });
+  }
+};
+
+
+const restoreOrganization = async (req, res) => {
+  try {
+    const response =
+      await organizationServices.restoreOrganizationSvc({
+        userId: req.user.id,
+        organizationId: req.validatedData.params.id,
+      });
+
+    if (!response.success) {
+      return res.status(404).json(response);
+    }
+
+    return res.status(200).json(response);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to restore organization.",
+    });
+  }
+};
+
 export const organizationController = {
   createOrganization,
   getOrganizations,
   getOrganizationById,
   updateOrganizationById,
   deleteOrganizationById,
+  getInactiveOrganizations,
+  restoreOrganization,
 };

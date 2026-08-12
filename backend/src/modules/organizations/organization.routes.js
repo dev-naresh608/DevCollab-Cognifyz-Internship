@@ -11,6 +11,7 @@ import {
   getOrganizationByIdSchema,
   updateOrganizationByIdSchema,
   deleteOrganizationByIdSchema,
+  restoreOrganizationSchema,
 } from "./organization.validation.js";
 
 const organizationRouter = Router();
@@ -25,6 +26,13 @@ organizationRouter
     authMiddleware.authenticateAccessToken,
     validate(createOrganizationSchema),
     organizationController.createOrganization,
+  );
+
+organizationRouter
+  .route("/inactive")
+  .get(
+    authMiddleware.authenticateAccessToken,
+    organizationController.getInactiveOrganizations,
   );
 
 organizationRouter
@@ -45,4 +53,11 @@ organizationRouter
     organizationController.deleteOrganizationById,
   );
 
+organizationRouter
+  .route("/:id/restore")
+  .post(
+    authMiddleware.authenticateAccessToken,
+    validate(restoreOrganizationSchema),
+    organizationController.restoreOrganization,
+  );
 export default organizationRouter;
