@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const uuidSchema = z.coerce.string().uuid("Invalid organization ID.");
+const uuidSchema = z.string().uuid("Invalid organization ID.");
 
 const organizationNameSchema = z
   .string()
@@ -27,7 +27,7 @@ export const createOrganizationSchema = z.object({
 });
 
 export const getOrganizationsSchema = z.object({
-  body: z.object({}),
+  body: z.object({}).optional(),
 });
 
 export const getOrganizationByIdSchema = z.object({
@@ -45,15 +45,11 @@ export const updateOrganizationByIdSchema = z.object({
     .object({
       name: organizationNameSchema.optional(),
       slug: organizationSlugSchema.optional(),
-      isActive: z.boolean().optional(),
     })
     .refine(
-      (data) =>
-        data.name !== undefined ||
-        data.slug !== undefined ||
-        data.isActive !== undefined,
+      (data) => data.name !== undefined || data.slug !== undefined,
       {
-        message: "At least one field is required for update.",
+        message: "At least one field (name or slug) is required for update.",
       },
     ),
 });
@@ -66,6 +62,6 @@ export const deleteOrganizationByIdSchema = z.object({
 
 export const restoreOrganizationSchema = z.object({
   params: z.object({
-    id: z.string().uuid("Invalid organization ID."),
+    id: uuidSchema,
   }),
 });

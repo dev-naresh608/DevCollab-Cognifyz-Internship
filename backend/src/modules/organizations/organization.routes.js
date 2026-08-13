@@ -1,13 +1,8 @@
 import { Router } from "express";
-
 import { organizationController } from "./organization.controller.js";
-
 import { authMiddleware } from "../auth/auth.middleware.js";
-
 import { validate } from "../../middlewares/validate.middleware.js";
-
 import {
-  createOrganizationSchema,
   getOrganizationByIdSchema,
   updateOrganizationByIdSchema,
   deleteOrganizationByIdSchema,
@@ -21,11 +16,6 @@ organizationRouter
   .get(
     authMiddleware.authenticateAccessToken,
     organizationController.getOrganizations,
-  )
-  .post(
-    authMiddleware.authenticateAccessToken,
-    validate(createOrganizationSchema),
-    organizationController.createOrganization,
   );
 
 organizationRouter
@@ -60,4 +50,5 @@ organizationRouter
     validate(restoreOrganizationSchema),
     organizationController.restoreOrganization,
   );
+
 export default organizationRouter;

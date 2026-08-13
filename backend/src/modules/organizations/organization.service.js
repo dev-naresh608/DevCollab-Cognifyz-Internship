@@ -47,14 +47,12 @@ const updateOrganizationByIdSvc = async ({
   organizationId,
   name,
   slug,
-  isActive,
 }) => {
   const organization = await organizationRepository.updateById({
     userId,
     organizationId,
     name,
     slug,
-    isActive,
   });
 
   if (!organization) {
@@ -131,5 +129,5 @@ export const organizationServices = {
   updateOrganizationByIdSvc,
   deleteOrganizationByIdSvc,
   getInactiveOrganizationsSvc,
-  restoreOrganizationSvc
+  restoreOrganizationSvc,
 };

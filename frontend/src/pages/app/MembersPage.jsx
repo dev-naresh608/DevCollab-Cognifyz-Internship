@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Users, UserPlus, Shield, Trash2, Edit3, ShieldCheck } from "lucide-react";
+import { Users, UserPlus, Shield, Trash2, Edit3, ShieldCheck, UserCheck } from "lucide-react";
 import { memberApi } from "../../services/member.api.js";
 import { roleApi } from "../../services/role.api.js";
 import { useWorkspaceContext } from "../../hooks/useWorkspaceContext.js";
@@ -21,10 +21,22 @@ export const MembersPage = () => {
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Invite Modal
+  // Add Member Modal Mode & Form States
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
-  const [inviteUserId, setInviteUserId] = useState("");
-  const [inviteRoleId, setInviteRoleId] = useState("");
+  const [activeTab, setActiveTab] = useState("create"); // 'create' | 'existing'
+
+  // Form Fields - Create New Member
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [roleId, setRoleId] = useState("");
+
+  // Form Fields - Add Existing Member
+  const [existingEmail, setExistingEmail] = useState("");
+  const [existingRoleId, setExistingRoleId] = useState("");
+
   const [inviteError, setInviteError] = useState("");
   const [inviteLoading, setInviteLoading] = useState(false);
 
@@ -61,22 +73,49 @@ export const MembersPage = () => {
     fetchMembersAndRoles();
   }, [selectedWorkspace?.id]);
 
-  const handleInviteSubmit = async (e) => {
+  const resetAddMemberForm = () => {
+    setFirstName("");
+    setLastName("");
+    setUsername("");
+    setEmail("");
+    setPassword("");
+    setRoleId("");
+    setExistingEmail("");
+    setExistingRoleId("");
+    setInviteError("");
+  };
+
+  const handleAddMemberSubmit = async (e) => {
     e.preventDefault();
     setInviteError("");
     setInviteLoading(true);
 
     try {
-      const res = await memberApi.addMember(selectedWorkspace.id, {
-        userId: inviteUserId,
-        roleId: inviteRoleId,
-      });
+      let payload;
+      if (activeTab === "create") {
+        payload = {
+          isExisting: false,
+          firstName,
+          lastName,
+          username,
+          email,
+          password,
+          roleId,
+        };
+      } else {
+        payload = {
+          isExisting: true,
+          email: existingEmail,
+          roleId: existingRoleId,
+        };
+      }
+
+      const res = await memberApi.addMember(selectedWorkspace.id, payload);
 
       if (res.success) {
         await fetchMembersAndRoles();
         setInviteModalOpen(false);
-        setInviteUserId("");
-        setInviteRoleId("");
+        resetAddMemberForm();
       } else {
         setInviteError(res.message || "Failed to add member to workspace.");
       }
@@ -150,7 +189,7 @@ export const MembersPage = () => {
         </div>
 
         {hasPermission("member:invite") && (
-          <Button onClick={() => setInviteModalOpen(true)}>
+          <Button onClick={() => { resetAddMemberForm(); setInviteModalOpen(true); }}>
             <UserPlus className="w-4 h-4 mr-1" /> Add Member
           </Button>
         )}
@@ -253,47 +292,134 @@ export const MembersPage = () => {
         </div>
       )}
 
-      {/* Modal: Invite/Add Member */}
+      {/* Modal: Add Workspace Member (Two Tabs: Create New vs Add Existing) */}
       <Modal
         isOpen={inviteModalOpen}
         onClose={() => setInviteModalOpen(false)}
         title="Add Workspace Member"
-        description="User must already belong to the organization before joining this workspace."
+        description="Controlled member provisioning for this workspace."
       >
-        <form onSubmit={handleInviteSubmit} className="space-y-4">
+        <div className="space-y-4">
+          {/* Tab Selector */}
+          <div className="grid grid-cols-2 gap-2 bg-gray-950 p-1 rounded-lg border border-gray-800 text-xs">
+            <button
+              type="button"
+              onClick={() => { setActiveTab("create"); setInviteError(""); }}
+              className={`py-2 px-3 rounded-md font-semibold flex items-center justify-center gap-1.5 transition-colors ${
+                activeTab === "create"
+                  ? "bg-indigo-600 text-white shadow-sm"
+                  : "text-gray-400 hover:text-gray-200"
+              }`}
+            >
+              <UserPlus className="w-3.5 h-3.5" /> Create New Member
+            </button>
+            <button
+              type="button"
+              onClick={() => { setActiveTab("existing"); setInviteError(""); }}
+              className={`py-2 px-3 rounded-md font-semibold flex items-center justify-center gap-1.5 transition-colors ${
+                activeTab === "existing"
+                  ? "bg-indigo-600 text-white shadow-sm"
+                  : "text-gray-400 hover:text-gray-200"
+              }`}
+            >
+              <UserCheck className="w-3.5 h-3.5" /> Add Existing Member
+            </button>
+          </div>
+
           {inviteError && (
             <div className="p-3 bg-rose-950/60 border border-rose-800 text-rose-300 text-xs rounded-md">
               {inviteError}
             </div>
           )}
 
-          <Input
-            label="User UUID"
-            placeholder="e.g. 123e4567-e89b-12d3-a456-426614174000"
-            value={inviteUserId}
-            required
-            onChange={(e) => setInviteUserId(e.target.value)}
-            helperText="Enter the UUID of the registered user."
-          />
+          <form onSubmit={handleAddMemberSubmit} className="space-y-4">
+            {activeTab === "create" ? (
+              <>
+                <div className="grid grid-cols-2 gap-3">
+                  <Input
+                    label="First Name"
+                    placeholder="John"
+                    value={firstName}
+                    required
+                    onChange={(e) => setFirstName(e.target.value)}
+                  />
+                  <Input
+                    label="Last Name"
+                    placeholder="Developer"
+                    value={lastName}
+                    required
+                    onChange={(e) => setLastName(e.target.value)}
+                  />
+                </div>
 
-          <Select
-            label="Workspace Role"
-            value={inviteRoleId}
-            required
-            onChange={(e) => setInviteRoleId(e.target.value)}
-            options={roles.map((r) => ({ label: r.name, value: r.id }))}
-            placeholder="Select a role"
-          />
+                <Input
+                  label="Username"
+                  placeholder="johndev"
+                  value={username}
+                  required
+                  onChange={(e) => setUsername(e.target.value)}
+                />
 
-          <div className="flex justify-end gap-2 pt-2 border-t border-gray-800">
-            <Button variant="ghost" onClick={() => setInviteModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" loading={inviteLoading}>
-              Add Member
-            </Button>
-          </div>
-        </form>
+                <Input
+                  label="Email Address"
+                  type="email"
+                  placeholder="john@example.com"
+                  value={email}
+                  required
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+
+                <Input
+                  label="Initial Password"
+                  type="password"
+                  placeholder="Minimum 8 characters"
+                  value={password}
+                  required
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+
+                <Select
+                  label="Workspace Role"
+                  value={roleId}
+                  required
+                  onChange={(e) => setRoleId(e.target.value)}
+                  options={roles.map((r) => ({ label: r.name, value: r.id }))}
+                  placeholder="Select a role"
+                />
+              </>
+            ) : (
+              <>
+                <Input
+                  label="Organization Member Email"
+                  type="email"
+                  placeholder="existinguser@organization.com"
+                  value={existingEmail}
+                  required
+                  onChange={(e) => setExistingEmail(e.target.value)}
+                  helperText="User must be an active member of this organization."
+                />
+
+                <Select
+                  label="Workspace Role"
+                  value={existingRoleId}
+                  required
+                  onChange={(e) => setExistingRoleId(e.target.value)}
+                  options={roles.map((r) => ({ label: r.name, value: r.id }))}
+                  placeholder="Select a role"
+                />
+              </>
+            )}
+
+            <div className="flex justify-end gap-2 pt-2 border-t border-gray-800">
+              <Button variant="ghost" onClick={() => setInviteModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" loading={inviteLoading}>
+                {activeTab === "create" ? "Create & Add Member" : "Add Member"}
+              </Button>
+            </div>
+          </form>
+        </div>
       </Modal>
 
       {/* Modal: Change Role */}

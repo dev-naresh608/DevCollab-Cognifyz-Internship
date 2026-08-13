@@ -1,33 +1,8 @@
 import { authService } from "./auth.service.js";
 import { env } from "../../configs/env.config.js";
 
-const showRegisterPage = async (req, res) => {
-  res.render("auth/views/register");
-};
 const showLoginPage = async (req, res) => {
   res.render("auth/views/login");
-};
-
-const register = async (req, res) => {
-  try {
-    const response = await authService.handleRegisterSvc(
-      req.validatedData.body,
-    );
-
-    if (!response.success) {
-      return res.status(409).json({
-        success: false,
-        message: response.message,
-      });
-    }
-
-    return res.render("auth/views/login");
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
 };
 
 const login = async (req, res) => {
@@ -114,6 +89,7 @@ const refresh = async (req, res) => {
     });
   }
 };
+
 const logout = async (req, res) => {
   try {
     res.clearCookie("refreshToken", {
@@ -133,10 +109,9 @@ const logout = async (req, res) => {
     });
   }
 };
+
 export const authController = {
-  showRegisterPage,
   showLoginPage,
-  register,
   login,
   getMe,
   refresh,

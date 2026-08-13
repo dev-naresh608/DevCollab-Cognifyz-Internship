@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Building2, Plus, Edit2, Archive, RefreshCw } from "lucide-react";
+import { Building2, Edit2, Archive, RefreshCw } from "lucide-react";
 import { organizationApi } from "../../services/organization.api.js";
 import { useWorkspaceContext } from "../../hooks/useWorkspaceContext.js";
 import { Button } from "../../components/common/Button.jsx";
@@ -142,7 +142,7 @@ export const OrganizationsPage = () => {
             <EmptyState
               icon={Building2}
               title="No Active Organizations"
-              description="You belong to no active organizations. Create one using the sidebar."
+              description="You belong to no active organizations."
             />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -153,6 +153,25 @@ const restoreWorkspaceSvc = async ({
   };
 };
 
+const getMyAccessSvc = async ({ userId, workspaceId }) => {
+  const member = await workspaceRepository.getMyAccess({
+    userId,
+    workspaceId,
+  });
+
+  if (!member) {
+    return {
+      success: false,
+      message: "Workspace membership not found.",
+    };
+  }
+
+  return {
+    success: true,
+    member,
+  };
+};
+
 export const workspaceServices = {
   createWorkspaceSvc,
   getWorkspacesSvc,
@@ -161,4 +180,5 @@ export const workspaceServices = {
   deleteWorkspaceByIdSvc,
   getInactiveWorkspacesSvc,
   restoreWorkspaceSvc,
+  getMyAccessSvc,
 };

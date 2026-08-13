@@ -16,7 +16,7 @@ import { useAuth } from "../../hooks/useAuth.js";
 import { Avatar } from "../common/Avatar.jsx";
 import { Badge } from "../common/Badge.jsx";
 
-export const Sidebar = ({ onOpenCreateOrg, onOpenCreateWs, mobileOpen, setMobileOpen }) => {
+export const Sidebar = ({ onOpenCreateWs, mobileOpen, setMobileOpen }) => {
   const {
     organizations,
     selectedOrg,
@@ -62,12 +62,8 @@ export const Sidebar = ({ onOpenCreateOrg, onOpenCreateWs, mobileOpen, setMobile
             <select
               value={selectedOrg?.id || ""}
               onChange={(e) => {
-                if (e.target.value === "NEW_ORG") {
-                  onOpenCreateOrg();
-                } else {
-                  const found = organizations.find((o) => o.id === e.target.value);
-                  if (found) selectOrganization(found);
-                }
+                const found = organizations.find((o) => o.id === e.target.value);
+                if (found) selectOrganization(found);
               }}
               className="w-full bg-gray-950 border border-gray-800 rounded-md px-3 py-2 text-xs text-gray-200 focus:outline-none focus:border-indigo-500 appearance-none pr-8 cursor-pointer"
             >
@@ -80,7 +76,6 @@ export const Sidebar = ({ onOpenCreateOrg, onOpenCreateWs, mobileOpen, setMobile
                   </option>
                 ))
               )}
-              <option value="NEW_ORG">+ Create Organization</option>
             </select>
             <ChevronDown className="w-4 h-4 text-gray-400 absolute right-2.5 top-2.5 pointer-events-none" />
           </div>

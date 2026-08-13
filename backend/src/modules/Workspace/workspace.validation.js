@@ -82,3 +82,14 @@ export const restoreWorkspaceSchema = z.object({
     id: workspaceIdSchema,
   }),
 });
+
+export const getWorkspaceMeSchema = z.object({
+  params: z
+    .object({
+      workspaceId: workspaceIdSchema.optional(),
+      id: workspaceIdSchema.optional(),
+    })
+    .refine((data) => data.workspaceId !== undefined || data.id !== undefined, {
+      message: "Workspace ID is required in route params.",
+    }),
+});

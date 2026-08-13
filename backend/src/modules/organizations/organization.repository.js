@@ -47,8 +47,8 @@ const getAll = async (userId) => {
     FROM organizations o
     INNER JOIN organization_members om
       ON om.organization_id = o.id
-    WHERE om.user_id = $1
-      AND o.is_active = true
+    WHERE (om.user_id = $1)
+      AND (o.is_active = true)
     ORDER BY o.created_at DESC
   `;
 
@@ -68,34 +68,33 @@ const findById = async ({ userId, organizationId }) => {
         o.updated_at
     FROM    
         organizations o
-        INNER JOIN 
-        organization_members om
-    ON 
-        om.organization_id = o.id
+        INNER JOIN organization_members om
+        ON om.organization_id = o.id
     WHERE 
-        om.user_id = $1 AND o.id = $2
-        AND o.is_active = true
-                `;
+        (om.user_id = $1)
+        AND (o.id = $2)
+        AND (o.is_active = true)
+  `;
 
   const { rows } = await pool.query(query, [userId, organizationId]);
 
   return rows[0] || null;
 };
 
-const updateById = async ({ userId, organizationId, name, slug, isActive }) => {
+const updateById = async ({ userId, organizationId, name, slug }) => {
   const query = `
     UPDATE organizations o
     SET
       name = COALESCE($1, o.name),
       slug = COALESCE($2, o.slug),
-      is_active = COALESCE($3, o.is_active),
       updated_at = CURRENT_TIMESTAMP
     FROM organization_members om
     WHERE
-      om.organization_id = o.id
-      AND om.user_id = $4
-      AND om.is_owner = true
-      AND o.id = $5
+      (om.organization_id = o.id)
+      AND (om.user_id = $3)
+      AND (om.is_owner = true)
+      AND (o.id = $4)
+      AND (o.is_active = true)
     RETURNING
       o.id,
       o.name,
@@ -108,7 +107,6 @@ const updateById = async ({ userId, organizationId, name, slug, isActive }) => {
   const { rows } = await pool.query(query, [
     name ?? null,
     slug ?? null,
-    isActive ?? null,
     userId,
     organizationId,
   ]);
@@ -122,10 +120,11 @@ const deleteById = async ({ userId, organizationId }) => {
     SET is_active = false
     FROM organization_members om
     WHERE
-      om.is_owner = true
-      AND om.organization_id = o.id
-      AND om.user_id = $1
-      AND o.id = $2
+      (om.organization_id = o.id)
+      AND (om.is_owner = true)
+      AND (om.user_id = $1)
+      AND (o.id = $2)
+      AND (o.is_active = true)
     RETURNING
       o.id,
       o.name,
@@ -153,9 +152,9 @@ const getInactiveOrganizations = async (userId) => {
     INNER JOIN organization_members om
       ON om.organization_id = o.id
     WHERE
-      om.user_id = $1
-      AND om.is_owner = true
-      AND o.is_active = false
+      (om.user_id = $1)
+      AND (om.is_owner = true)
+      AND (o.is_active = false)
     ORDER BY o.updated_at DESC
   `;
 
@@ -172,11 +171,11 @@ const restoreById = async ({ userId, organizationId }) => {
       updated_at = CURRENT_TIMESTAMP
     FROM organization_members om
     WHERE
-      om.organization_id = o.id
-      AND om.user_id = $1
-      AND om.is_owner = true
-      AND o.id = $2
-      AND o.is_active = false
+      (om.organization_id = o.id)
+      AND (om.user_id = $1)
+      AND (om.is_owner = true)
+      AND (o.id = $2)
+      AND (o.is_active = false)
     RETURNING
       o.id,
       o.name,

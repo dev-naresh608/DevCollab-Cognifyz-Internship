@@ -9,6 +9,9 @@ import cors from "cors";
 import authRouter from "./modules/auth/auth.routes.js";
 import userRouter from "./modules/users/user.routes.js";
 import organizationRouter from "./modules/organizations/organization.routes.js";
+import workspaceRouter from "./modules/workspace/workspace.routes.js";
+import permissionRouter from "./modules/permissions/permission.routes.js";
+import platformAdminRouter from "./modules/platform-admin/platform-admin.routes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,13 +37,16 @@ app.use(
   }),
 );
 
-//EJS
+// EJS
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "modules"));
 
-//Routes:
+// Routes:
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/organizations", organizationRouter);
+app.use("/api/workspaces", workspaceRouter);
+app.use("/api/permissions", permissionRouter);
+app.use("/api/platform-admin", platformAdminRouter);
 
 export default app;

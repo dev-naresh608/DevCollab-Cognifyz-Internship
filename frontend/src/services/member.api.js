@@ -6,11 +6,8 @@ export const memberApi = {
     return data;
   },
 
-  addMember: async (workspaceId, { userId, roleId }) => {
-    const { data } = await api.post(`/workspaces/${workspaceId}/members`, {
-      userId,
-      roleId,
-    });
+  addMember: async (workspaceId, payload) => {
+    const { data } = await api.post(`/workspaces/${workspaceId}/members`, payload);
     return data;
   },
 

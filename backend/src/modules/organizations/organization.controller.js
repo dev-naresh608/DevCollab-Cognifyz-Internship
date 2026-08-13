@@ -9,6 +9,12 @@ const createOrganization = async (req, res) => {
 
     return res.status(201).json(response);
   } catch (error) {
+    if (error.code === "23505") {
+      return res.status(409).json({
+        success: false,
+        message: "An organization with this slug already exists.",
+      });
+    }
     return res.status(500).json({
       success: false,
       message: "Failed to create organization.",
@@ -65,6 +71,12 @@ const updateOrganizationById = async (req, res) => {
 
     return res.status(200).json(response);
   } catch (error) {
+    if (error.code === "23505") {
+      return res.status(409).json({
+        success: false,
+        message: "An organization with this slug already exists.",
+      });
+    }
     return res.status(500).json({
       success: false,
       message: "Failed to update organization.",
@@ -107,7 +119,6 @@ const getInactiveOrganizations = async (req, res) => {
     });
   }
 };
-
 
 const restoreOrganization = async (req, res) => {
   try {

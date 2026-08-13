@@ -12,6 +12,8 @@ export const env = {
 
   JWT_ACCESS_EXPIRES_IN: process.env.JWT_ACCESS_EXPIRES_IN,
   JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN,
+
+  PLATFORM_ADMIN_BOOTSTRAP_SECRET: process.env.PLATFORM_ADMIN_BOOTSTRAP_SECRET,
 };
 
 for (const [key, value] of Object.entries(env)) {

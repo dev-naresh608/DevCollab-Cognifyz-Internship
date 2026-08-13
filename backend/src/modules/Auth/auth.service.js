@@ -1,4 +1,3 @@
-import { User } from "../../models/user.js";
 import bcrypt from "bcrypt";
 import { env } from "../../configs/env.config.js";
 import jwt from "jsonwebtoken";
@@ -26,31 +25,6 @@ const generateRefreshToken = (userId) => {
       expiresIn: env.JWT_REFRESH_EXPIRES_IN,
     },
   );
-};
-
-const handleRegisterSvc = async (payload) => {
-  const { firstName, lastName, username, email, password } = payload;
-
-  const passwordHash = await bcrypt.hash(password, 12);
-
-  const user = await userRepository.createUser({
-    firstName,
-    lastName,
-    username,
-    email,
-    passwordHash,
-  });
-
-  return {
-    success: true,
-    user: {
-      id: user.id,
-      firstName: user.first_name,
-      lastName: user.last_name,
-      username: user.username,
-      email: user.email,
-    },
-  };
 };
 
 const handleLoginSvc = async ({ email, password }) => {
@@ -147,13 +121,13 @@ const refreshSvc = async (userId) => {
 
   return {
     success: true,
-    message: "token refreshed successfully",
+    message: "Token refreshed successfully.",
     accessToken,
     refreshToken,
   };
 };
+
 export const authService = {
-  handleRegisterSvc,
   handleLoginSvc,
   getMeSvc,
   refreshSvc,
