@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { FolderGit2, Edit2, Archive, RefreshCw, Plus } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { FolderGit2, Edit2, Archive, RefreshCw } from "lucide-react";
 import { workspaceApi } from "../../services/workspace.api.js";
-import { useWorkspaceContext } from "../../hooks/useWorkspaceContext.js";
+import {
+  fetchWorkspaces,
+  selectWorkspace,
+} from "../../store/slices/workspaceSlice.js";
 import { usePermissions } from "../../hooks/usePermissions.js";
 import { Button } from "../../components/common/Button.jsx";
 import { Input } from "../../components/common/Input.jsx";
@@ -11,13 +15,11 @@ import { EmptyState } from "../../components/common/EmptyState.jsx";
 import { LoadingSpinner } from "../../components/common/LoadingSpinner.jsx";
 
 export const WorkspacesPage = () => {
-  const {
-    selectedOrg,
-    workspaces,
-    selectedWorkspace,
-    selectWorkspace,
-    refreshWorkspaces,
-  } = useWorkspaceContext();
+  const dispatch = useDispatch();
+
+  const { selectedOrg, workspaces, selectedWorkspace } = useSelector(
+    (state) => state.workspace
+  );
 
   const { hasPermission } = usePermissions();
 
@@ -74,7 +76,7 @@ export const WorkspacesPage = () => {
       });
 
       if (res.success) {
-        await refreshWorkspaces();
+        await dispatch(fetchWorkspaces(selectedOrg.id));
         setEditModalOpen(false);
       } else {
         setEditError(res.message || "Failed to update workspace.");
@@ -91,7 +93,7 @@ export const WorkspacesPage = () => {
     try {
       const res = await workspaceApi.deactivateWorkspace(id);
       if (res.success) {
-        await refreshWorkspaces();
+        await dispatch(fetchWorkspaces(selectedOrg.id));
       }
     } catch (err) {
       alert(err.response?.data?.message || "Permission denied / error deactivating workspace.");
@@ -102,7 +104,7 @@ export const WorkspacesPage = () => {
     try {
       const res = await workspaceApi.restoreWorkspace(id);
       if (res.success) {
-        await refreshWorkspaces();
+        await dispatch(fetchWorkspaces(selectedOrg.id));
         await fetchInactiveWorkspaces();
       }
     } catch (err) {
@@ -191,7 +193,7 @@ export const WorkspacesPage = () => {
 
                     <div className="flex items-center justify-between pt-3 border-t border-gray-800">
                       {!isSelected && (
-                        <Button size="sm" variant="outline" onClick={() => selectWorkspace(ws)}>
+                        <Button size="sm" variant="outline" onClick={() => dispatch(selectWorkspace(ws))}>
                           Select
                         </Button>
                       )}

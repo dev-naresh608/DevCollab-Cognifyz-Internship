@@ -1,17 +1,17 @@
 import axios from "axios";
 
-let accessToken = localStorage.getItem("devcollab_access_token") || null;
+let inMemoryAccessToken = null;
+let onTokenRefreshedCallback = null;
 
-export const setStoredAccessToken = (token) => {
-  accessToken = token;
-  if (token) {
-    localStorage.setItem("devcollab_access_token", token);
-  } else {
-    localStorage.removeItem("devcollab_access_token");
-  }
+export const setInMemoryAccessToken = (token) => {
+  inMemoryAccessToken = token || null;
 };
 
-export const getStoredAccessToken = () => accessToken;
+export const getInMemoryAccessToken = () => inMemoryAccessToken;
+
+export const setOnTokenRefreshed = (callback) => {
+  onTokenRefreshedCallback = callback;
+};
 
 const api = axios.create({
   baseURL: "/api",
@@ -23,8 +23,8 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
+    if (inMemoryAccessToken) {
+      config.headers.Authorization = `Bearer ${inMemoryAccessToken}`;
     }
     return config;
   },
@@ -80,18 +80,27 @@ api.interceptors.response.use(
           { withCredentials: true }
         );
         if (data.success && data.accessToken) {
-          setStoredAccessToken(data.accessToken);
+          setInMemoryAccessToken(data.accessToken);
+          if (onTokenRefreshedCallback) {
+            onTokenRefreshedCallback(data.accessToken);
+          }
           api.defaults.headers.common["Authorization"] = `Bearer ${data.accessToken}`;
           originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
           processQueue(null, data.accessToken);
           return api(originalRequest);
         } else {
-          setStoredAccessToken(null);
+          setInMemoryAccessToken(null);
+          if (onTokenRefreshedCallback) {
+            onTokenRefreshedCallback(null);
+          }
           processQueue(new Error("Refresh failed"), null);
           return Promise.reject(error);
         }
       } catch (refreshErr) {
-        setStoredAccessToken(null);
+        setInMemoryAccessToken(null);
+        if (onTokenRefreshedCallback) {
+          onTokenRefreshedCallback(null);
+        }
         processQueue(refreshErr, null);
         return Promise.reject(refreshErr);
       } finally {

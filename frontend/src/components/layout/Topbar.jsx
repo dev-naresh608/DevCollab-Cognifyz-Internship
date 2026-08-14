@@ -1,10 +1,11 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import { Menu, Building2, FolderGit2, Shield } from "lucide-react";
-import { useWorkspaceContext } from "../../hooks/useWorkspaceContext.js";
-import { Badge } from "../common/Badge.jsx";
 
 export const Topbar = ({ onToggleMobile }) => {
-  const { selectedOrg, selectedWorkspace, userRole } = useWorkspaceContext();
+  const { selectedOrg, selectedWorkspace, userRole } = useSelector(
+    (state) => state.workspace
+  );
 
   return (
     <header className="h-14 bg-gray-900/80 backdrop-blur-xs border-b border-gray-800 px-4 flex items-center justify-between sticky top-0 z-20">
@@ -20,7 +21,9 @@ export const Topbar = ({ onToggleMobile }) => {
         <div className="flex items-center gap-2 text-xs font-medium">
           <div className="flex items-center gap-1.5 text-gray-400">
             <Building2 className="w-3.5 h-3.5" />
-            <span className="text-gray-200 font-semibold">{selectedOrg?.name || "No Organization"}</span>
+            <span className="text-gray-200 font-semibold">
+              {selectedOrg?.name || "No Organization"}
+            </span>
           </div>
           <span className="text-gray-600">/</span>
           <div className="flex items-center gap-1.5 text-gray-400">

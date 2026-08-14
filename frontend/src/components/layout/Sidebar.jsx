@@ -1,5 +1,6 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import {
   LayoutDashboard,
   Users,
@@ -11,23 +12,29 @@ import {
   LogOut,
   ChevronDown,
 } from "lucide-react";
-import { useWorkspaceContext } from "../../hooks/useWorkspaceContext.js";
-import { useAuth } from "../../hooks/useAuth.js";
+import { logoutUser } from "../../store/slices/authSlice.js";
+import {
+  selectOrganization,
+  selectWorkspace,
+} from "../../store/slices/workspaceSlice.js";
 import { Avatar } from "../common/Avatar.jsx";
 import { Badge } from "../common/Badge.jsx";
 
 export const Sidebar = ({ onOpenCreateWs, mobileOpen, setMobileOpen }) => {
+  const dispatch = useDispatch();
+
+  const { user } = useSelector((state) => state.auth);
   const {
     organizations,
     selectedOrg,
-    selectOrganization,
     workspaces,
     selectedWorkspace,
-    selectWorkspace,
     userRole,
-  } = useWorkspaceContext();
+  } = useSelector((state) => state.workspace);
 
-  const { user, logout } = useAuth();
+  const handleLogout = () => {
+    dispatch(logoutUser());
+  };
 
   const navItems = [
     { label: "Overview", icon: LayoutDashboard, path: "/app" },
@@ -63,7 +70,7 @@ export const Sidebar = ({ onOpenCreateWs, mobileOpen, setMobileOpen }) => {
               value={selectedOrg?.id || ""}
               onChange={(e) => {
                 const found = organizations.find((o) => o.id === e.target.value);
-                if (found) selectOrganization(found);
+                if (found) dispatch(selectOrganization(found));
               }}
               className="w-full bg-gray-950 border border-gray-800 rounded-md px-3 py-2 text-xs text-gray-200 focus:outline-none focus:border-indigo-500 appearance-none pr-8 cursor-pointer"
             >
@@ -100,7 +107,7 @@ export const Sidebar = ({ onOpenCreateWs, mobileOpen, setMobileOpen }) => {
               value={selectedWorkspace?.id || ""}
               onChange={(e) => {
                 const found = workspaces.find((w) => w.id === e.target.value);
-                if (found) selectWorkspace(found);
+                if (found) dispatch(selectWorkspace(found));
               }}
               disabled={workspaces.length === 0}
               className="w-full bg-gray-950 border border-gray-800 rounded-md px-3 py-2 text-xs text-gray-200 focus:outline-none focus:border-indigo-500 appearance-none pr-8 disabled:opacity-50 cursor-pointer"
@@ -160,7 +167,7 @@ export const Sidebar = ({ onOpenCreateWs, mobileOpen, setMobileOpen }) => {
             </div>
           </div>
           <button
-            onClick={logout}
+            onClick={handleLogout}
             title="Logout"
             className="p-1.5 text-gray-400 hover:text-rose-400 rounded-md hover:bg-gray-800 transition-colors"
           >

@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 import {
   Building2,
   FolderGit2,
@@ -10,13 +11,14 @@ import {
   CheckCircle2,
   XCircle,
 } from "lucide-react";
-import { useWorkspaceContext } from "../../hooks/useWorkspaceContext.js";
 import { usePermissions } from "../../hooks/usePermissions.js";
 import { Badge } from "../../components/common/Badge.jsx";
 import { EmptyState } from "../../components/common/EmptyState.jsx";
 
 export const DashboardPage = () => {
-  const { selectedOrg, selectedWorkspace, userRole } = useWorkspaceContext();
+  const { selectedOrg, selectedWorkspace, userRole } = useSelector(
+    (state) => state.workspace
+  );
   const { userPermissions, hasPermission } = usePermissions();
 
   if (!selectedOrg) {

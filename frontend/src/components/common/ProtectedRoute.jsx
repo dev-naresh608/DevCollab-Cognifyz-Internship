@@ -1,11 +1,10 @@
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth.js";
+import { useSelector } from "react-redux";
 import { LoadingSpinner } from "./LoadingSpinner.jsx";
-import { WorkspaceProvider } from "../../contexts/WorkspaceContext.jsx";
 
 export const ProtectedRoute = () => {
-  const { user, authLoading } = useAuth();
+  const { user, authLoading } = useSelector((state) => state.auth);
 
   if (authLoading) {
     return <LoadingSpinner label="Authenticating session..." fullPage />;
@@ -15,9 +14,5 @@ export const ProtectedRoute = () => {
     return <Navigate to="/login" replace />;
   }
 
-  return (
-    <WorkspaceProvider>
-      <Outlet />
-    </WorkspaceProvider>
-  );
+  return <Outlet />;
 };

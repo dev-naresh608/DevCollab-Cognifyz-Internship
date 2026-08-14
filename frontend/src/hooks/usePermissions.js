@@ -1,7 +1,7 @@
-import { useWorkspaceContext } from "./useWorkspaceContext.js";
+import { useSelector } from "react-redux";
 
 export const usePermissions = () => {
-  const { userPermissions, userRole } = useWorkspaceContext();
+  const { userPermissions, userRole } = useSelector((state) => state.workspace);
 
   const hasPermission = (permissionName) => {
     if (!permissionName) return true;

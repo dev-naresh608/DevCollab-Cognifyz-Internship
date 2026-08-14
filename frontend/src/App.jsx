@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext.jsx";
+import { useDispatch } from "react-redux";
+import { initializeAuth } from "./store/slices/authSlice.js";
 import { ProtectedRoute } from "./components/common/ProtectedRoute.jsx";
 import { AppLayout } from "./components/layout/AppLayout.jsx";
 
@@ -18,33 +19,37 @@ import { RolesPage } from "./pages/app/RolesPage.jsx";
 import { SettingsPage } from "./pages/app/SettingsPage.jsx";
 
 export default function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(initializeAuth());
+  }, [dispatch]);
+
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* Public Auth & Setup Routes */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/setup/admin" element={<BootstrapAdminPage />} />
+    <BrowserRouter>
+      <Routes>
+        {/* Public Auth & Setup Routes */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/setup/admin" element={<BootstrapAdminPage />} />
 
-          {/* Protected Platform Admin Route */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/admin" element={<PlatformAdminPage />} />
+        {/* Protected Platform Admin Route */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/admin" element={<PlatformAdminPage />} />
 
-            {/* Main Application Routes */}
-            <Route path="/app" element={<AppLayout />}>
-              <Route index element={<DashboardPage />} />
-              <Route path="organizations" element={<OrganizationsPage />} />
-              <Route path="workspaces" element={<WorkspacesPage />} />
-              <Route path="members" element={<MembersPage />} />
-              <Route path="roles" element={<RolesPage />} />
-              <Route path="settings" element={<SettingsPage />} />
-            </Route>
+          {/* Main Application Routes */}
+          <Route path="/app" element={<AppLayout />}>
+            <Route index element={<DashboardPage />} />
+            <Route path="organizations" element={<OrganizationsPage />} />
+            <Route path="workspaces" element={<WorkspacesPage />} />
+            <Route path="members" element={<MembersPage />} />
+            <Route path="roles" element={<RolesPage />} />
+            <Route path="settings" element={<SettingsPage />} />
           </Route>
+        </Route>
 
-          {/* Default Fallback */}
-          <Route path="*" element={<Navigate to="/app" replace />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+        {/* Default Fallback */}
+        <Route path="*" element={<Navigate to="/app" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }

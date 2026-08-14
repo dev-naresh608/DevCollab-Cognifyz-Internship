@@ -1,10 +1,10 @@
-import api, { setStoredAccessToken } from "../configs/api.config.js";
+import api, { setInMemoryAccessToken } from "../configs/api.config.js";
 
 export const authApi = {
   login: async (credentials) => {
     const { data } = await api.post("/auth/login", credentials);
     if (data.success && data.accessToken) {
-      setStoredAccessToken(data.accessToken);
+      setInMemoryAccessToken(data.accessToken);
     }
     return data;
   },
@@ -17,7 +17,9 @@ export const authApi = {
   refresh: async () => {
     const { data } = await api.post("/auth/refresh");
     if (data.success && data.accessToken) {
-      setStoredAccessToken(data.accessToken);
+      setInMemoryAccessToken(data.accessToken);
+    } else {
+      setInMemoryAccessToken(null);
     }
     return data;
   },
@@ -27,7 +29,7 @@ export const authApi = {
       const { data } = await api.post("/auth/logout");
       return data;
     } finally {
-      setStoredAccessToken(null);
+      setInMemoryAccessToken(null);
     }
   },
 };

@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { FolderGit2, ArrowRight, ShieldCheck } from "lucide-react";
 import { Input } from "../../components/common/Input.jsx";
 import { Button } from "../../components/common/Button.jsx";
-import { useAuth } from "../../hooks/useAuth.js";
+import { loginUser } from "../../store/slices/authSlice.js";
 
 export const LoginPage = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const dispatch = useDispatch();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,18 +21,14 @@ export const LoginPage = () => {
     setLoading(true);
 
     try {
-      const res = await login({ email, password });
+      const res = await dispatch(loginUser({ email, password })).unwrap();
       if (res.success) {
         navigate("/app");
       } else {
         setError(res.message || "Invalid credentials.");
       }
     } catch (err) {
-      if (err.response?.data?.message) {
-        setError(err.response.data.message);
-      } else {
-        setError("Failed to connect to authentication server.");
-      }
+      setError(typeof err === "string" ? err : err?.message || "Failed to connect to authentication server.");
     } finally {
       setLoading(false);
     }

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import { Users, UserPlus, Shield, Trash2, Edit3, ShieldCheck, UserCheck } from "lucide-react";
 import { memberApi } from "../../services/member.api.js";
 import { roleApi } from "../../services/role.api.js";
-import { useWorkspaceContext } from "../../hooks/useWorkspaceContext.js";
 import { usePermissions } from "../../hooks/usePermissions.js";
 import { Button } from "../../components/common/Button.jsx";
 import { Input } from "../../components/common/Input.jsx";
@@ -14,7 +14,7 @@ import { EmptyState } from "../../components/common/EmptyState.jsx";
 import { LoadingSpinner } from "../../components/common/LoadingSpinner.jsx";
 
 export const MembersPage = () => {
-  const { selectedWorkspace } = useWorkspaceContext();
+  const { selectedWorkspace } = useSelector((state) => state.workspace);
   const { hasPermission } = usePermissions();
 
   const [members, setMembers] = useState([]);

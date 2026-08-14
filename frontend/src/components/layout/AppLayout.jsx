@@ -1,21 +1,47 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { Sidebar } from "./Sidebar.jsx";
 import { Topbar } from "./Topbar.jsx";
 import { Modal } from "../common/Modal.jsx";
 import { Input } from "../common/Input.jsx";
 import { Button } from "../common/Button.jsx";
 import { workspaceApi } from "../../services/workspace.api.js";
-import { useWorkspaceContext } from "../../hooks/useWorkspaceContext.js";
+import {
+  fetchOrganizations,
+  fetchWorkspaces,
+  fetchWorkspacePermissions,
+  selectWorkspace,
+  clearWorkspace,
+} from "../../store/slices/workspaceSlice.js";
 
 export const AppLayout = () => {
+  const dispatch = useDispatch();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const {
-    selectedOrg,
-    refreshWorkspaces,
-    selectWorkspace,
-  } = useWorkspaceContext();
+  const { user } = useSelector((state) => state.auth);
+  const { selectedOrg, selectedWorkspace } = useSelector((state) => state.workspace);
+
+  // Cascading data fetching triggers
+  useEffect(() => {
+    if (user?.id) {
+      dispatch(fetchOrganizations());
+    } else {
+      dispatch(clearWorkspace());
+    }
+  }, [dispatch, user?.id]);
+
+  useEffect(() => {
+    if (selectedOrg?.id) {
+      dispatch(fetchWorkspaces(selectedOrg.id));
+    }
+  }, [dispatch, selectedOrg?.id]);
+
+  useEffect(() => {
+    if (selectedWorkspace?.id && user?.id) {
+      dispatch(fetchWorkspacePermissions(selectedWorkspace.id));
+    }
+  }, [dispatch, selectedWorkspace?.id, user?.id]);
 
   // Create Workspace Modal state
   const [createWsOpen, setCreateWsOpen] = useState(false);
@@ -44,8 +70,8 @@ export const AppLayout = () => {
       });
 
       if (res.success && res.workspace) {
-        await refreshWorkspaces();
-        selectWorkspace(res.workspace);
+        await dispatch(fetchWorkspaces(selectedOrg.id)).unwrap();
+        dispatch(selectWorkspace(res.workspace));
         setCreateWsOpen(false);
         setWsName("");
         setWsSlug("");

@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Building2, Edit2, Archive, RefreshCw } from "lucide-react";
 import { organizationApi } from "../../services/organization.api.js";
-import { useWorkspaceContext } from "../../hooks/useWorkspaceContext.js";
+import {
+  fetchOrganizations,
+  selectOrganization,
+} from "../../store/slices/workspaceSlice.js";
 import { Button } from "../../components/common/Button.jsx";
 import { Input } from "../../components/common/Input.jsx";
 import { Modal } from "../../components/common/Modal.jsx";
@@ -10,8 +14,11 @@ import { EmptyState } from "../../components/common/EmptyState.jsx";
 import { LoadingSpinner } from "../../components/common/LoadingSpinner.jsx";
 
 export const OrganizationsPage = () => {
-  const { organizations, selectedOrg, selectOrganization, refreshOrganizations } =
-    useWorkspaceContext();
+  const dispatch = useDispatch();
+
+  const { organizations, selectedOrg } = useSelector(
+    (state) => state.workspace
+  );
 
   const [activeTab, setActiveTab] = useState("active"); // "active" or "inactive"
   const [inactiveOrgs, setInactiveOrgs] = useState([]);
@@ -66,7 +73,7 @@ export const OrganizationsPage = () => {
       });
 
       if (res.success) {
-        await refreshOrganizations();
+        await dispatch(fetchOrganizations());
         setEditModalOpen(false);
       } else {
         setEditError(res.message || "Failed to update organization.");
@@ -83,7 +90,7 @@ export const OrganizationsPage = () => {
     try {
       const res = await organizationApi.deactivateOrganization(id);
       if (res.success) {
-        await refreshOrganizations();
+        await dispatch(fetchOrganizations());
       }
     } catch (err) {
       alert(err.response?.data?.message || "Failed to deactivate organization.");
@@ -94,7 +101,7 @@ export const OrganizationsPage = () => {
     try {
       const res = await organizationApi.restoreOrganization(id);
       if (res.success) {
-        await refreshOrganizations();
+        await dispatch(fetchOrganizations());
         await fetchInactive();
       }
     } catch (err) {
@@ -173,7 +180,7 @@ export const OrganizationsPage = () => {
 
                     <div className="flex items-center justify-between pt-3 border-t border-gray-800">
                       {!isSelected && (
-                        <Button size="sm" variant="outline" onClick={() => selectOrganization(org)}>
+                        <Button size="sm" variant="outline" onClick={() => dispatch(selectOrganization(org))}>
                           Select
                         </Button>
                       )}

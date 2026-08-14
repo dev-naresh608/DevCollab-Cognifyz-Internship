@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { ShieldAlert, Plus, Edit2, Trash2, Key, Check, ShieldCheck } from "lucide-react";
 import { roleApi } from "../../services/role.api.js";
 import { permissionApi } from "../../services/permission.api.js";
-import { useWorkspaceContext } from "../../hooks/useWorkspaceContext.js";
+import { fetchWorkspacePermissions } from "../../store/slices/workspaceSlice.js";
 import { usePermissions } from "../../hooks/usePermissions.js";
 import { Button } from "../../components/common/Button.jsx";
 import { Input } from "../../components/common/Input.jsx";
@@ -12,7 +13,8 @@ import { EmptyState } from "../../components/common/EmptyState.jsx";
 import { LoadingSpinner } from "../../components/common/LoadingSpinner.jsx";
 
 export const RolesPage = () => {
-  const { selectedWorkspace, refreshPermissions } = useWorkspaceContext();
+  const dispatch = useDispatch();
+  const { selectedWorkspace } = useSelector((state) => state.workspace);
   const { hasPermission } = usePermissions();
 
   const [roles, setRoles] = useState([]);
@@ -163,7 +165,7 @@ export const RolesPage = () => {
 
       if (res.success) {
         await fetchRolesAndPermissions();
-        await refreshPermissions();
+        await dispatch(fetchWorkspacePermissions(selectedWorkspace.id));
         setMatrixModalOpen(false);
       } else {
         setMatrixError(res.message || "Failed to update permissions.");

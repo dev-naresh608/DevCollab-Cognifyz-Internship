@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Settings, FolderGit2, AlertTriangle, Archive, Save } from "lucide-react";
 import { workspaceApi } from "../../services/workspace.api.js";
-import { useWorkspaceContext } from "../../hooks/useWorkspaceContext.js";
+import { fetchWorkspaces } from "../../store/slices/workspaceSlice.js";
 import { usePermissions } from "../../hooks/usePermissions.js";
 import { Button } from "../../components/common/Button.jsx";
 import { Input } from "../../components/common/Input.jsx";
@@ -9,7 +10,10 @@ import { Badge } from "../../components/common/Badge.jsx";
 import { EmptyState } from "../../components/common/EmptyState.jsx";
 
 export const SettingsPage = () => {
-  const { selectedOrg, selectedWorkspace, refreshWorkspaces } = useWorkspaceContext();
+  const dispatch = useDispatch();
+  const { selectedOrg, selectedWorkspace } = useSelector(
+    (state) => state.workspace
+  );
   const { hasPermission } = usePermissions();
 
   const [name, setName] = useState("");
@@ -36,7 +40,7 @@ export const SettingsPage = () => {
       });
 
       if (res.success) {
-        await refreshWorkspaces();
+        await dispatch(fetchWorkspaces(selectedOrg.id));
         setMessage({ type: "success", text: "Workspace updated successfully." });
       } else {
         setMessage({ type: "error", text: res.message || "Failed to update workspace." });
@@ -56,7 +60,7 @@ export const SettingsPage = () => {
     try {
       const res = await workspaceApi.deactivateWorkspace(selectedWorkspace.id);
       if (res.success) {
-        await refreshWorkspaces();
+        await dispatch(fetchWorkspaces(selectedOrg.id));
       }
     } catch (err) {
       alert(err.response?.data?.message || "Failed to deactivate workspace.");
